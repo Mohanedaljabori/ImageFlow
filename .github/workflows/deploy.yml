@@ -32,7 +32,7 @@ jobs:
       - name: Build backend
         run: |
           cd file-upload-backend
-          ./mvnw package -DskipTests
+          mvn package -DskipTests
 
       - name: Build Docker images
         run: |
