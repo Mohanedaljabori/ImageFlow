@@ -10,9 +10,9 @@ terraform {
 provider "docker" {}
 
 resource "docker_image" "backend" {
-  name         = "spring-backend"
+  name = "spring-backend"
   build {
-    context    = "../backend"
+    context = "../file-upload-backend"
     dockerfile = "Dockerfile"
   }
 }
