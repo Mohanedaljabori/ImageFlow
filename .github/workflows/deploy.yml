@@ -1,0 +1,49 @@
+name: CI/CD Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Java 17 (for Spring Boot)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Node.js (for React)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build frontend
+        run: |
+          cd file-upload-frontend
+          npm install
+          npm run build
+
+      - name: Build backend
+        run: |
+          cd file-upload-backend
+          mvn package -DskipTests
+
+      - name: Build Docker images
+        run: |
+          docker build -t image-upload-frontend ./file-upload-frontend
+          docker build -t image-upload-backend ./file-upload-backend
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform init & apply
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
