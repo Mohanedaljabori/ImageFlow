@@ -34,11 +34,6 @@ jobs:
           cd file-upload-backend
           mvn package -DskipTests
 
-      - name: Build Docker images
-        run: |
-          docker build -t image-upload-frontend ./file-upload-frontend
-          docker build -t image-upload-backend ./file-upload-backend
-
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
