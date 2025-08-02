@@ -19,7 +19,7 @@ resource "docker_image" "backend" {
 
 resource "docker_container" "backend" {
   name  = "spring-backend"
-  image = docker_image.backend.latest
+  image = docker_image.backend.name
   ports {
     internal = 8080
     external = 8080
