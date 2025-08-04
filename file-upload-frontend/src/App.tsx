@@ -40,7 +40,8 @@ function App() {
         <h1>Upload an Image</h1>
         <form onSubmit={handleSubmit}>
           <input type="file" accept="image/*" onChange={handleFileChange} />
-          <button type="submit">Upload</button>
+          <br/>
+          <button type="submit">Upload Image</button>
         </form>
         {preview && (
           <div className="preview-container">
