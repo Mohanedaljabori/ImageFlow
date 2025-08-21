@@ -43,4 +43,4 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/imageflow-backend:latest
       
       - name: Deploy backend using hook
-        run: curl | ${{secrets.RENDER_DEPLOY_HOOK}}
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
