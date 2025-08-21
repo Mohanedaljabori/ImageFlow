@@ -1,35 +1,19 @@
-import React, { useState } from 'react';
 import './App.css';
+import { useFileUpload } from './hooks/useFileUpload';
+import FileUploadForm from './components/FileUploadForm';
+import ImagePreview from './components/ImagePreview';
+import { uploadImage } from './api/uploadService';
 
 function App() {
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const { file, preview, selectFile } = useFileUpload();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpload = async () => {
     if (!file) return;
-
-    const formData = new FormData();
-    formData.append('image', file);
-
     try {
-      const res = await fetch('http://localhost:5000/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await res.json();
+      const data = await uploadImage(file);
       alert(`Uploaded successfully: ${data.url}`);
     } catch (err) {
-      console.error('Upload failed', err);
+      console.error(err);
       alert('Upload failed');
     }
   };
@@ -38,17 +22,8 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>Upload an Image</h1>
-        <form onSubmit={handleSubmit}>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
-          <br/>
-          <button type="submit">Upload Image</button>
-        </form>
-        {preview && (
-          <div className="preview-container">
-            <h2>Preview:</h2>
-            <img src={preview} alt="preview" className="preview-image" />
-          </div>
-        )}
+        <FileUploadForm onFileSelect={selectFile} onSubmit={handleUpload} />
+        {preview && <ImagePreview src={preview} />}
       </header>
     </div>
   );

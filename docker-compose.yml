@@ -3,6 +3,12 @@ services:
     build: ./file-upload-backend
     ports:
       - "8080:8080"
+    environment:
+      - FIREBASE_STORAGE_EMULATOR_HOST=firebase-emulator:9199
+      - FIREBASE_PROJECT_ID=imageflow
+      - firebase.storage-bucket=imageflow.appspot.com
+    depends_on:
+      - firebase-emulator
     networks:
       - app-network
 
@@ -28,6 +34,19 @@ services:
     image: grafana/grafana
     ports:
       - "3001:3000"
+    networks:
+      - app-network
+
+  firebase-emulator:
+    build: ./firebase-emulator
+    ports:
+      - "9199:9199"  # Storage API
+      - "4000:4000"  # Emulator UI
+    volumes:
+      - ./firebase/firebase.json:/app/firebase.json
+      - ./firebase/storage.rules:/app/storage.rules
+    environment:
+      - FIREBASE_PROJECT_ID=imageflow
     networks:
       - app-network
 
