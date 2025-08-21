@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 @Configuration
 public class FirebaseConfig {
@@ -30,7 +30,6 @@ public class FirebaseConfig {
     public void init() throws IOException {
         boolean usingEmulator = emulatorHost != null && !emulatorHost.isBlank();
 
-        // Derive storage bucket from project ID if not provided
         if ((storageBucket == null || storageBucket.isBlank())
                 && projectId != null && !projectId.isBlank()) {
             storageBucket = projectId + ".appspot.com";
@@ -42,23 +41,20 @@ public class FirebaseConfig {
         }
 
         GoogleCredentials credentials;
-
         if (usingEmulator) {
-            // ✅ Emulator: load dummy credentials bundled in resources
-            InputStream dummyStream = getClass().getResourceAsStream(serviceAccountPath);
-            if (dummyStream == null) {
-                throw new IllegalStateException("Missing imageflow.json in resources!");
-            }
-            credentials = GoogleCredentials.fromStream(dummyStream);
-            System.out.println("[Firebase] Using emulator at " + emulatorHost);
+            credentials = GoogleCredentials.fromStream(
+                    new ByteArrayInputStream("{}".getBytes())
+            );
+            System.out.println("[Firebase] Using Storage emulator at " + emulatorHost);
         } else if (serviceAccountPath != null && !serviceAccountPath.isBlank()) {
-            // ✅ Real Firebase: load service account from provided path
             try (FileInputStream in = new FileInputStream(serviceAccountPath)) {
                 credentials = GoogleCredentials.fromStream(in);
             }
         } else {
-            // ✅ Fallback: Application Default Credentials
-            credentials = GoogleCredentials.getApplicationDefault();
+            throw new IllegalStateException(
+                    "[Firebase] No emulator and no service account configured. " +
+                            "Set FIREBASE_STORAGE_EMULATOR_HOST or firebase.service-account-path."
+            );
         }
 
         FirebaseOptions options = FirebaseOptions.builder()

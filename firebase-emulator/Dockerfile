@@ -1,15 +1,13 @@
 FROM node:20-slim
 
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jre-headless && \
+    apt-get install -y openjdk-17-jre-headless curl && \
     rm -rf /var/lib/apt/lists/*
 
 RUN npm install -g firebase-tools@12
 
 WORKDIR /app
 
-VOLUME ["/app"]
+COPY firebase.json storage.rules ./
 
-EXPOSE 9199 4000
-
-CMD ["firebase", "emulators:start", "--only", "storage", "--project", "imageflow", "--host", "0.0.0.0"]
+CMD ["sh", "-c", "firebase emulators:start --only storage --project ${FIREBASE_PROJECT_ID:-imageflow} --host 0.0.0.0 --port $PORT"]
